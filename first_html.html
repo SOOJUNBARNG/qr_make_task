@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>QRコードにHTMLを埋め込む</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    #qr {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>アンケート</h2>
+  <form onsubmit="generateQR(); return false;">
+    <label>あなたの名前: <input type="text" id="name" required></label><br><br>
+    <input type="submit" value="QRコードを作成">
+  </form>
+
+  <div id="qr"></div>
+
+  <script>
+    function generateQR() {
+      const name = document.getElementById("name").value;
+
+      // HTML to embed inside QR
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="UTF-8"><title>回答</title></head>
+        <body>
+          <h1>アンケート回答</h1>
+          <p>あなたの名前は <strong>${name}</strong> です。</p>
+        </body>
+        </html>
+      `;
+
+      // Convert HTML to base64 and make a data URL
+      const encoded = btoa(unescape(encodeURIComponent(htmlContent)));
+      const dataUrl = `data:text/html;base64,${encoded}`;
+
+      // Create QR code
+      const qrDiv = document.getElementById("qr");
+      qrDiv.innerHTML = '';
+      new QRCode(qrDiv, {
+        text: dataUrl,
+        width: 200,
+        height: 200
+      });
+    }
+  </script>
+</body>
+</html>
