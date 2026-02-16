@@ -1,7 +1,7 @@
 import qrcode
 
 # URL you want to link to
-url = "https://hatogaya-jotform.web.app/"
+url = "https://azuma-jotform.web.app/"
 
 # Generate QR code
 qr = qrcode.make(url)
