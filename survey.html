@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Survey</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #f5f5f5; display: flex; justify-content: center; padding: 40px 16px; }
+    .card { background: white; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); padding: 32px; max-width: 560px; width: 100%; }
+    h1 { font-size: 1.4rem; margin-bottom: 24px; color: #222; }
+    .progress { background: #eee; border-radius: 99px; height: 6px; margin-bottom: 28px; }
+    .progress-bar { background: #4f46e5; height: 6px; border-radius: 99px; transition: width 0.3s; }
+    .question { display: none; }
+    .question.active { display: block; }
+    .question p { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; color: #333; }
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .options label { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+    .options label:hover { border-color: #4f46e5; background: #f0f0ff; }
+    .options input[type="radio"], .options input[type="checkbox"] { accent-color: #4f46e5; width: 18px; height: 18px; }
+    .options input[type="text"], .options textarea { width: 100%; padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.15s; }
+    .options input[type="text"]:focus, .options textarea:focus { border-color: #4f46e5; }
+    .options textarea { resize: vertical; min-height: 80px; }
+    .nav { display: flex; justify-content: space-between; margin-top: 28px; }
+    button { padding: 10px 24px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: background 0.15s; }
+    .btn-back { background: #e5e7eb; color: #333; }
+    .btn-back:hover { background: #d1d5db; }
+    .btn-next { background: #4f46e5; color: white; }
+    .btn-next:hover { background: #4338ca; }
+    .result { display: none; text-align: center; }
+    .result h2 { font-size: 1.5rem; margin-bottom: 12px; color: #4f46e5; }
+    .result p { color: #555; margin-bottom: 20px; }
+    .result ul { text-align: left; list-style: none; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+    .result ul li { padding: 10px 16px; border-bottom: 1px solid #e5e7eb; font-size: 0.9rem; }
+    .result ul li:last-child { border-bottom: none; }
+    .result ul li span { font-weight: 600; color: #333; }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h1>Quick Survey</h1>
+  <div class="progress"><div class="progress-bar" id="bar"></div></div>
+  
+  <div class="question active" id="q1">
+    <p>1. How did you hear about us?</p>
+    <div class="options">
+<label><input type="radio" name="q1" value="Social media"> Social media</label>
+<label><input type="radio" name="q1" value="Friend / referral"> Friend / referral</label>
+<label><input type="radio" name="q1" value="Search engine"> Search engine</label>
+<label><input type="radio" name="q1" value="Other"> Other</label>
+</div>
+  </div>
+  <div class="question " id="q2">
+    <p>2. How satisfied are you with our service?</p>
+    <div class="options">
+<label><input type="radio" name="q2" value="Very satisfied"> Very satisfied</label>
+<label><input type="radio" name="q2" value="Satisfied"> Satisfied</label>
+<label><input type="radio" name="q2" value="Neutral"> Neutral</label>
+<label><input type="radio" name="q2" value="Dissatisfied"> Dissatisfied</label>
+</div>
+  </div>
+  <div class="question " id="q3">
+    <p>3. Which features do you use? (select all that apply)</p>
+    <div class="options">
+<label><input type="checkbox" name="q3" value="QR generator"> QR generator</label>
+<label><input type="checkbox" name="q3" value="Survey tool"> Survey tool</label>
+<label><input type="checkbox" name="q3" value="Analytics"> Analytics</label>
+<label><input type="checkbox" name="q3" value="Sharing"> Sharing</label>
+</div>
+  </div>
+  <div class="question " id="q4">
+    <p>4. Any feedback or suggestions?</p>
+    <div class="options"><textarea name="q4" placeholder="Write anything here..."></textarea></div>
+  </div>
+  <div class="result" id="result">
+    <h2>Thank you! 🎉</h2>
+    <p>Your answers have been recorded.</p>
+    <ul id="summary"></ul>
+  </div>
+  <div class="nav">
+    <button class="btn-back" id="backBtn" onclick="navigate(-1)" style="visibility:hidden">Back</button>
+    <button class="btn-next" id="nextBtn" onclick="navigate(1)">Next</button>
+  </div>
+</div>
+<script>
+  const total = 4;
+  let current = 1;
+
+  function updateUI() {
+    document.getElementById("bar").style.width = ((current - 1) / total * 100) + "%";
+    document.getElementById("backBtn").style.visibility = current > 1 ? "visible" : "hidden";
+    document.getElementById("nextBtn").textContent = current === total ? "Submit" : "Next";
+  }
+
+  function getAnswer(qNum) {
+    
+    if (qNum === 3) {
+      const checked = [...document.querySelectorAll(`input[name="q3"]:checked`)];
+      return checked.map(el => el.value).join(", ") || null;
+    }
+    if (qNum === 4) {
+      const val = document.querySelector(`textarea[name="q4"]`).value.trim();
+      return val || null;
+    }
+    const sel = document.querySelector(`input[name="q${qNum}"]:checked`);
+    return sel ? sel.value : null;
+  }
+
+  function navigate(dir) {
+    if (dir === 1) {
+      const ans = getAnswer(current);
+      const isTextarea = [4].includes(current);
+      if (!isTextarea && !ans) { alert("Please answer before continuing."); return; }
+      if (current === total) { showResult(); return; }
+    }
+    document.getElementById(`q${current}`).classList.remove("active");
+    current += dir;
+    document.getElementById(`q${current}`).classList.add("active");
+    updateUI();
+  }
+
+  function showResult() {
+    const labels = ["How did you hear about us?", "How satisfied are you with our service?", "Which features do you use? (select all that apply)", "Any feedback or suggestions?"];
+    const ul = document.getElementById("summary");
+    ul.innerHTML = "";
+    for (let i = 1; i <= total; i++) {
+      const ans = getAnswer(i) || "(skipped)";
+      const li = document.createElement("li");
+      li.innerHTML = `<span>${labels[i-1]}:</span> ${ans}`;
+      ul.appendChild(li);
+    }
+    for (let i = 1; i <= total; i++) document.getElementById(`q${i}`).style.display = "none";
+    document.getElementById("result").style.display = "block";
+    document.querySelector(".nav").style.display = "none";
+    document.getElementById("bar").style.width = "100%";
+  }
+
+  updateUI();
+</script>
+</body>
+</html>
